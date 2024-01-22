@@ -73,6 +73,6 @@
 
   html,
   body {
-    @apply h-full w-full bg-background text-foreground antialiased transition-colors duration-1000 ease-in-out;
+    @apply h-full w-full bg-background text-foreground antialiased transition-colors duration-1000 ease-in-out font-roboto;
   }
 }
