@@ -1,5 +1,6 @@
 import { ArchiveIcon } from "@radix-ui/react-icons";
 import { MetaFunction } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 import { SITE_DESCRIPTION, SITE_TITLE } from "~/consts";
 import { TopBanner } from "./top-banner";
 
@@ -33,18 +34,18 @@ export default function HomeLayout() {
           </p>
         </div>
         <div className="flex items-center capitalize flex-col gap-4">
-          <a
-            href="/signup"
+          <Link
+            to="/register"
             className="flex justify-center items-center min-w-[300px] py-5 px-6 bg-primary text-primary-foreground hover:bg-primary/80 transition-all duration-200 rounded-2xl text-lg font-semibold"
           >
             Create your Liber
-          </a>
-          <a
-            href="/login"
+          </Link>
+          <Link
+            to="/login"
             className="text-[#747474] font-roboto underline font-medium"
           >
             Log in
-          </a>
+          </Link>
         </div>
       </section>
       <div></div>

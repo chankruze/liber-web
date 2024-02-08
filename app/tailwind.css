@@ -76,3 +76,9 @@
     @apply h-full w-full bg-background text-foreground antialiased transition-colors duration-1000 ease-in-out font-roboto;
   }
 }
+
+@layer components {
+  .text-paragraph {
+    @apply lg:text-xl lg:leading-9;
+  }
+}

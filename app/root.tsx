@@ -8,6 +8,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+
+import { Toaster } from "react-hot-toast";
 import styles from "./tailwind.css";
 
 export const links: LinksFunction = () => [
@@ -30,6 +32,7 @@ export default function App() {
       </head>
       <body>
         <Outlet />
+        <Toaster position="bottom-center" />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
