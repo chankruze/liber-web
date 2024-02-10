@@ -29,6 +29,7 @@ export const meta: MetaFunction = () => {
 export default function RegisterPage() {
   const [handle, setHandle] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   const [step, setStep] = useState(1);
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
@@ -53,11 +54,19 @@ export default function RegisterPage() {
       if (actionData.statusCode === 409) {
         toast.error(`${actionData?.message}. Try again with another email id.`);
       }
+
+      if (actionData.statusCode === 400) {
+        toast.error(actionData.message[0]);
+      }
+
+      setIsChecking(false);
     }
   }, [actionData]);
 
+  const canProceed = !isChecking && actionData?.isAvailable;
+
   const handleNextStep = () => {
-    if (actionData?.isAvailable) {
+    if (canProceed) {
       setStep((prev) => prev + 1);
     }
   };
@@ -70,6 +79,8 @@ export default function RegisterPage() {
     username = username.replace(" ", "-");
     // update the state
     setHandle(username);
+    // update loading state
+    setIsChecking(true);
   };
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
@@ -102,8 +113,11 @@ export default function RegisterPage() {
                     value={handle}
                     required
                   />
-                  {actionData?.isAvailable ? (
+                  {!isChecking && actionData?.isAvailable ? (
                     <CheckCircledIcon className="text-green-500 h-4 w-4" />
+                  ) : null}
+                  {isChecking ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-gray-600"></div>
                   ) : null}
                 </div>
                 <input
@@ -118,7 +132,7 @@ export default function RegisterPage() {
                   <Button
                     size="lg"
                     className="w-full"
-                    disabled={actionData ? !actionData.isAvailable : true}
+                    disabled={!canProceed}
                     onClick={handleNextStep}
                   >
                     Continue
@@ -130,7 +144,7 @@ export default function RegisterPage() {
                 )}
               </div>
               <Link
-                className="typography-text mt-8 text-stone-500 hover:underline"
+                className="self-start typography-text mt-8 text-stone-500 hover:underline"
                 to="/login"
               >
                 or log in
@@ -141,7 +155,10 @@ export default function RegisterPage() {
           {step === 2 ? (
             <div className="flex w-full max-w-md flex-col m-auto">
               <Form method="post">
-                <ArrowLeftIcon />
+                <ArrowLeftIcon
+                  className="h-6 w-6 hover:scale-110 cursor-pointer"
+                  onClick={() => setStep(1)}
+                />
                 <p className="mt-2 line-clamp-1">
                   liber.com/{handle} is yours!
                 </p>
@@ -208,7 +225,7 @@ export default function RegisterPage() {
                 </div>
               </Form>
               <Link
-                className="typography-text mt-8 text-stone-500 hover:underline"
+                className="self-start typography-text mt-8 text-stone-500 hover:underline"
                 to="/login"
               >
                 or log in
@@ -239,11 +256,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
         if (data.isAvailable)
           return json({
+            ok: true,
             isAvailable: true,
             message: "This username is available.",
           });
 
         return json({
+          ok: true,
           isAvailable: false,
           message: "This username is already taken.",
         });
@@ -257,6 +276,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
 
         return json({
+          ok: false,
           isAvailable: false,
           message: "Something went wrong.",
         });
