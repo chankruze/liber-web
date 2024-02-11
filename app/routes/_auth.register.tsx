@@ -4,19 +4,17 @@ import {
   EyeClosedIcon,
   EyeOpenIcon,
 } from "@radix-ui/react-icons";
-import {
-  ActionFunctionArgs,
-  MetaFunction,
-  json,
-  redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Form, Link, useActionData, useSubmit } from "@remix-run/react";
 import axios, { isAxiosError } from "axios";
 import _ from "lodash";
 import { ChangeEvent, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Label } from "~/components/ui/label";
 import { SITE_TITLE } from "~/consts";
+import { createUserSession } from "~/lib/session.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -210,6 +208,11 @@ export default function RegisterPage() {
                       <EyeClosedIcon onClick={togglePasswordVisibility} />
                     )}
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox name="remember" id="remember" />
+                    <Label htmlFor="remember">Remember me for a week</Label>
+                  </div>
+                  {/* handle */}
                   <input hidden name="handle" value={handle} readOnly />
                   <div className="h-14 sm:h-12">
                     <Button
@@ -288,6 +291,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const email = formData.get("email");
       const password = formData.get("password");
       const handle = formData.get("handle");
+      const remember = formData.get("remember") === "on";
 
       try {
         const { data } = await axios.post(
@@ -300,32 +304,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           }
         );
 
-        if (data.ok) return redirect(`/${handle}`);
+        const { accessToken, refreshToken } = data;
 
-        return json({
-          ok: false,
-          message: "Unable to register",
+        // create session and save the details
+        return createUserSession({
+          request,
+          accessToken,
+          refreshToken,
+          remember,
+          redirectTo: `/${handle}`,
         });
       } catch (e) {
         if (isAxiosError(e)) {
           if (e.response) {
-            return json({ ok: false, ...e.response.data });
+            return json(
+              { ok: false, ...e.response.data },
+              { status: e.response.status }
+            );
           }
 
-          return json({ ok: false, code: e.code, messsage: e.message });
+          return json(
+            { ok: false, code: e.code, messsage: e.message },
+            { status: Number(e.code) }
+          );
         }
 
-        return json({
-          ok: false,
-          message: "Something went wrong.",
-        });
+        return json(
+          { ok: false, message: "Something went wrong." },
+          { status: 500 }
+        );
       }
     }
 
     default: {
-      throw new Response("Unknown action", {
-        status: 500,
-      });
+      return json({ message: "Unknown action" }, { status: 500 });
     }
   }
 };
