@@ -7,10 +7,11 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import axios, { isAxiosError } from "axios";
 import { JwtPayload } from "jsonwebtoken";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { SITE_TITLE } from "~/consts";
@@ -39,8 +40,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function LoginPage() {
+  const actionData = useActionData<typeof action>();
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+  useEffect(() => {
+    if (actionData && !actionData.ok) {
+      toast.success(actionData.message);
+    }
+  }, [actionData]);
 
   return (
     <main className="flex flex-col items-center h-full">

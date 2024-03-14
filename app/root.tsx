@@ -8,7 +8,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-
 import { Toaster } from "react-hot-toast";
 import styles from "./tailwind.css";
 
