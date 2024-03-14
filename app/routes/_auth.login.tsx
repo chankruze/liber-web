@@ -46,7 +46,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (actionData && !actionData.ok) {
-      toast.success(actionData.message);
+      toast.error(actionData.message);
     }
   }, [actionData]);
 

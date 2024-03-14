@@ -45,7 +45,7 @@ export default function RegisterPage() {
     debouncedSubmit(handle);
 
     return () => debouncedSubmit.cancel();
-  }, [handle]);
+  }, [handle, debouncedSubmit]);
 
   useEffect(() => {
     if (actionData) {
