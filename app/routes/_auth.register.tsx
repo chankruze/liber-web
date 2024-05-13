@@ -337,7 +337,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     default: {
-      return json({ message: "Unknown action" }, { status: 500 });
+      return json({ ok: false, message: "Unknown action" }, { status: 500 });
     }
   }
 };
